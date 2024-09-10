@@ -21,6 +21,7 @@
             type="text"
             class="mt-1 block w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
             placeholder="Nom du contact"
+            v-model="newContact.name"
           />
         </div>
         <div class="mb-4">
@@ -29,6 +30,7 @@
             type="text"
             class="mt-1 block w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
             placeholder="Numéro de téléphone"
+            v-model="newContact.phone"
           />
         </div>
         <div class="mb-4">
@@ -37,10 +39,12 @@
             type="email"
             class="mt-1 block w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
             placeholder="Adresse email"
+            v-model="newContact.email"
           />
         </div>
         <button
           class="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md"
+          @click.prevent="addOne()"
         >
           Ajouter/Modifier le contact
         </button>
@@ -49,7 +53,7 @@
       <!-- Section droite pour la liste des contacts -->
       <section class="w-2/3 p-6">
         <h2 class="text-xl font-bold mb-4">Liste des Contacts</h2>
-        <p class="text-gray-600 mb-4">Nombre de contacts : xxx</p>
+        <p class="text-gray-600 mb-4">Nombre de contacts : {{xxx}}</p>
 
         <!-- Filtre de recherche -->
         <div class="mb-4">
@@ -68,7 +72,7 @@
             :key="contact.id"
           >
             <div>
-              <p class="text-lg font-semibold">{{contact.Name}}</p>
+              <p class="text-lg font-semibold">{{contact.name}}</p>
               <p class="text-gray-600">{{contact.phone}}</p>
               <p class="text-gray-600">{{contact.email}}</p>
             </div>
@@ -94,33 +98,43 @@
     <script>
       // 1 Initialisation du localStorage
 
-      localStorage.contacts = JSON.stringify([
-        {
-          id: Date.now(),
-          name: "Jhon Doe",
-          phone: "123456789",
-          email: "jhon@example.com",
-        },
-        {
-          id: Date.now() + 1,
-          name: "Jane Smith",
-          phone: "987654321",
-          email: "jane@example.com",
-        },
-      ]);
+      // localStorage.contacts = JSON.stringify([
+      //   {
+      //     id: Date.now(),
+      //     name: "Jhon Doe",
+      //     phone: "123456789",
+      //     email: "jhon@example.com",
+      //   },
+      //   {
+      //     id: Date.now() + 1,
+      //     name: "Jane Smith",
+      //     phone: "987654321",
+      //     email: "jane@example.com",
+      //   },
+      // ]);
       Vue.createApp({
         data() {
           return {
             contacts: JSON.parse(localStorage.getItem("contacts")) || [],
+            newContact: { id: Date.now(), name: "", phone: "", email: "" },
           };
         },
-        methods: {},
+        methods: {
+          addOne() {
+            this.contacts.push({ ...this.newContact });
+            this.newContact.id = Date.now();
+            this.newContact.name = "";
+            this.newContact.phone = "";
+            this.newContact.email = "";
+          },
+        },
         computed: {},
         watch: {
           contacts: {
-            handler() {
-              localStorage.setItem("contacts", JSON.stringify(contacts));
+            handler(newValue, oldValue) {
+              localStorage.setItem("contacts", JSON.stringify(this.contacts));
             },
+
             deep: true,
           },
         },
