@@ -46,7 +46,13 @@
           class="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md"
           @click.prevent="addOne()"
         >
-          Ajouter/Modifier le contact
+          Ajouter
+        </button>
+        <button
+          class="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px- rounded-md"
+          @click="updateOneById(newContact.id)"
+        >
+          Modifier le contact
         </button>
       </aside>
 
@@ -79,6 +85,7 @@
             <div class="flex space-x-2">
               <button
                 class="bg-yellow-400 hover:bg-yellow-500 text-white font-bold py-2 px-4 rounded-md"
+                @click="editOneById(contact.id)"
               >
                 Modifier
               </button>
@@ -127,15 +134,36 @@
             this.newContact.phone = "";
             this.newContact.email = "";
           },
-        },
-        computed: {},
-        watch: {
-          contacts: {
-            handler(newValue, oldValue) {
-              localStorage.setItem("contacts", JSON.stringify(this.contacts));
-            },
+          editOneById(id) {
+            const contact = this.contacts.find((contact) => contact.id === id);
+            if (contact) {
+              this.newContact = { ...contact };
+            }
+          },
+          updateOneById(id) {
+            const contactIndex = this.contacts.findIndex(
+              (contact) => contact.id === id
+            );
+            if (contactIndex !== -1) {
+              this.contacts[contactIndex] = { ...this.newContact, id };
+              this.newContact = {
+                id: Date.now(),
+                name: "",
+                phone: "",
+                email: "",
+              };
+            }
+          },
 
-            deep: true,
+          computed: {},
+          watch: {
+            contacts: {
+              handler(newValue, oldValue) {
+                localStorage.setItem("contacts", JSON.stringify(this.contacts));
+              },
+
+              deep: true,
+            },
           },
         },
       }).mount("#app");
