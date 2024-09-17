@@ -91,6 +91,7 @@
               </button>
               <button
                 class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-md"
+                @click="deleteOneById(contact.id)"
               >
                 Supprimer
               </button>
@@ -133,6 +134,14 @@
             this.newContact.name = "";
             this.newContact.phone = "";
             this.newContact.email = "";
+          },
+          deleteOneById(id) {
+            const contactIndex = this.contacts.findIndex(
+              (contact) => contact.id === id
+            );
+            if (contactIndex !== -1) {
+              this.contacts.splice(contactIndex, 1);
+            }
           },
           editOneById(id) {
             const contact = this.contacts.find((contact) => contact.id === id);
