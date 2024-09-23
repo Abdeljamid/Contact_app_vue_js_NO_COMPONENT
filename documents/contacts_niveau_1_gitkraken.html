@@ -49,7 +49,7 @@
           Ajouter
         </button>
         <button
-          class="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px- rounded-md mt-4"
+          class="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md mt-4"
           @click="updateOneById(newContact.id)"
         >
           Modifier le contact
@@ -62,11 +62,11 @@
         <p class="text-gray-600 mb-4">Nombre de contacts : {{contacts.length}}</p>
         <div class="grid">
           <button
-            class="bg-blue-400  text-white font-bold py-2 px-4 rounded-md"
-            @click="sortContacts = sortContacts === 'asc' ? 'desc' : 'asc'"
-          >
-            Triez A-Z/Z-A
-          </button>
+          class="bg-blue-400 text-white font-bold py-2 px-4 rounded-md"
+          @click="sortContacts = sortContacts === 'asc' ? 'desc' : 'asc'"
+        >
+          Triez A-Z/Z-A
+        </button>
 
         <!-- Filtre de recherche -->
         <div class="mb-4">
@@ -74,14 +74,22 @@
             type="text"
             class="mt-1 block w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm mt-2"
             placeholder="Rechercher un contact"
+            v-model="searchContacts"
           />
+          
         </div>
 
         <!-- Liste des contacts triée et filtrée -->
-        <ul class="space-y-4" v-if="contacts.length">
+        <ul class="space-y-4" >
+          <p class="text-center bg-gray-200" v-if="contacts.length === 0">
+            Vous n'avez aucun contact.
+          </p>
+          <p class="text-center bg-yellow-200" v-else-if="filteredContacts.length === 0">
+            Aucun contact ne correspond à votre recherche.
+          </p>
           <li
             class="flex justify-between items-center bg-gray-50 p-4 rounded-lg shadow-sm"
-            v-for="contact  in contacts"
+            v-for="contact  in filteredContacts"
             :key="contact.id"
           >
             <div>
@@ -105,7 +113,7 @@
             </div>
           </li>
         </ul>
-        <p class="text-center bg-red-500 " v-else>VOUS N'AVEZ AUCUN CONTACTS!</p>
+        
       </section>
     </div>
 
@@ -133,7 +141,8 @@
           return {
             contacts: JSON.parse(localStorage.getItem("contacts")) || [],
             newContact: { id: Date.now(), name: "", phone: "", email: "" },
-            
+            searchContacts: "",
+            sortContacts: 'asc', // Par défaut, tri ascendant
           };
         },
         methods: {
@@ -159,6 +168,7 @@
             if (contact) {
               this.newContact = { ...contact };
             }
+            this.sortContacts();// le trie se trouve dans le computed
           },
           updateOneById(id) {
             const contactIndex = this.contacts.findIndex(
@@ -173,23 +183,34 @@
                 email: "",
               };
             }
+            
           },
         },
         computed: {
-            sortContacts(){
-              let sortContacts = this.contacts;
-              sortContacts = sortContacts.sort((a,b) => {
-                let fa = a.name.toLowerCase(), fb = b.name.toLowerCase();
-                if (fa < fb) {
-                  return -1
-                }
-                if (fa > fb) {
-                  return 1
-                }
-                return 0
-              })
-            }
-          },
+          filteredContacts() {
+            let sortedContacts = [...this.contacts]; // Crée une copie des contacts
+            sortedContacts.sort((a, b) => {
+              const fa = a.name.toLowerCase();
+              const fb = b.name.toLowerCase();
+              if (this.sortContacts === "asc") {
+                return fa < fb ? -1 : fa > fb ? 1 : 0;
+              } else {
+                return fa > fb ? -1 : fa < fb ? 1 : 0;
+              }
+            });
+
+            // Applique ensuite le filtre de recherche
+            return sortedContacts.filter((contact) => {
+              const search = this.searchContacts.toLowerCase();
+              return (
+                contact.name.toLowerCase().includes(search) ||
+                contact.phone.includes(search) ||
+                contact.email.toLowerCase().includes(search)
+                
+              );
+            });
+          }
+        },
         watch: {
             contacts: {
               handler(newValue, oldValue) {
